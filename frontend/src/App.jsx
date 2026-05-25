@@ -4,7 +4,10 @@ import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
+import Audit from './pages/Audit';
+import Users from './pages/Users';
 import Unauthorized from './pages/Unauthorized';
+import Layout from './components/layout/Layout';
 
 export default function App() {
   return (
@@ -13,11 +16,25 @@ export default function App() {
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/unauthorized" element={<Unauthorized />} />
-          <Route path="/dashboard" element={
-            <ProtectedRoute>
-              <Dashboard />
-            </ProtectedRoute>
-          } />
+
+          <Route element={<Layout />}>
+            <Route path="/dashboard" element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="/audit" element={
+              <ProtectedRoute permission="audit:read">
+                <Audit />
+              </ProtectedRoute>
+            } />
+            <Route path="/users" element={
+              <ProtectedRoute permission="*">
+                <Users />
+              </ProtectedRoute>
+            } />
+          </Route>
+
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
         </Routes>
         <Toaster position="top-right" toastOptions={{ style: { background: '#1f2937', color: '#f9fafb', border: '1px solid #374151' } }} />

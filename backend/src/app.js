@@ -11,6 +11,8 @@ app.use(express.json());
 app.use(morgan('dev'));
 
 app.use('/api/auth', require('./routes/authRoutes'));
+app.use('/api/audit', require('./routes/auditRoutes'));
+app.use('/api/users', require('./routes/userRoutes'));
 
 app.get('/api/health', (req, res) => res.json({ status: 'ok', service: 'sentinel-backend' }));
 
