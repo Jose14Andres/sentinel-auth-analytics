@@ -5,6 +5,7 @@ import ProtectedRoute from './components/auth/ProtectedRoute';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Audit from './pages/Audit';
+import Analytics from './pages/Analytics';
 import Users from './pages/Users';
 import Unauthorized from './pages/Unauthorized';
 import Layout from './components/layout/Layout';
@@ -21,6 +22,11 @@ export default function App() {
             <Route path="/dashboard" element={
               <ProtectedRoute>
                 <Dashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="/analytics" element={
+              <ProtectedRoute>
+                <Analytics />
               </ProtectedRoute>
             } />
             <Route path="/audit" element={
