@@ -5,12 +5,22 @@ const sequelize = require('../config/database');
 // GET /api/analytics/summary — KPIs para dashboard
 const getSummary = async (req, res) => {
   try {
+    const { from, to } = req.query;
+    const periodCondition = {};
+    if (from && to) {
+      periodCondition.period = { [Op.between]: [from, to] };
+    } else if (from) {
+      periodCondition.period = { [Op.gte]: from };
+    } else if (to) {
+      periodCondition.period = { [Op.lte]: to };
+    }
+
     const [ingresos, gastos, incidentes, disponibilidad] = await Promise.all([
-      DataRecord.sum('value', { where: { category_id: 1 } }),
-      DataRecord.sum('value', { where: { category_id: 2 } }),
-      DataRecord.sum('value', { where: { category_id: 3 } }),
+      DataRecord.sum('value', { where: { category_id: 1, ...periodCondition } }),
+      DataRecord.sum('value', { where: { category_id: 2, ...periodCondition } }),
+      DataRecord.sum('value', { where: { category_id: 3, ...periodCondition } }),
       DataRecord.findOne({
-        where: { category_id: 4 },
+        where: { category_id: 4, ...periodCondition },
         order: [['created_at', 'DESC']],
         attributes: ['value'],
       }),
@@ -34,8 +44,16 @@ const getSummary = async (req, res) => {
 // GET /api/analytics/chart?category_id=1 — datos para gráfico de líneas
 const getChartData = async (req, res) => {
   try {
-    const { category_id } = req.query;
+    const { category_id, from, to } = req.query;
     const where = category_id ? { category_id: parseInt(category_id) } : {};
+    if (from && to) {
+      where.period = { [Op.between]: [from, to] };
+    } else if (from) {
+      where.period = { [Op.gte]: from };
+    } else if (to) {
+      where.period = { [Op.lte]: to };
+    }
+
     const records = await DataRecord.findAll({
       where,
       include: [{ model: DataCategory, as: 'category', attributes: ['name'] }],
@@ -74,10 +92,11 @@ const createRecord = async (req, res) => {
   }
 };
 
-// GET /api/analytics/records — tabla de datos
-const getRecords = async (req, res) => {
+// GET /api/analytics/my-records — tabla de datos del operador actual
+const getMyRecords = async (req, res) => {
   try {
     const records = await DataRecord.findAll({
+      where: { created_by: req.user.id },
       include: [{ model: DataCategory, as: 'category', attributes: ['name'] }],
       order: [['created_at', 'DESC']],
       limit: 100,
@@ -88,4 +107,29 @@ const getRecords = async (req, res) => {
   }
 };
 
-module.exports = { getSummary, getChartData, getCategories, createRecord, getRecords };
+// GET /api/analytics/records — tabla de datos
+const getRecords = async (req, res) => {
+  try {
+    const { from, to } = req.query;
+    const where = {};
+    if (from && to) {
+      where.period = { [Op.between]: [from, to] };
+    } else if (from) {
+      where.period = { [Op.gte]: from };
+    } else if (to) {
+      where.period = { [Op.lte]: to };
+    }
+
+    const records = await DataRecord.findAll({
+      where,
+      include: [{ model: DataCategory, as: 'category', attributes: ['name'] }],
+      order: [['created_at', 'DESC']],
+      limit: 100,
+    });
+    res.json({ success: true, data: records });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+module.exports = { getSummary, getChartData, getCategories, createRecord, getRecords, getMyRecords };

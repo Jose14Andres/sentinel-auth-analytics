@@ -1,7 +1,7 @@
 const PERMISSIONS = {
   admin:    ['*'],
   analyst:  ['dashboard:read', 'reports:read', 'reports:export', 'data:read'],
-  auditor:  ['audit:read', 'risks:read', 'policies:read', 'users:read'],
+  auditor:  ['dashboard:read', 'audit:read', 'risks:read', 'policies:read', 'users:read', 'data:read'],
   operator: ['data:write', 'data:read'],
 };
 

@@ -1,0 +1,33 @@
+
+> backend@1.0.0 dev
+> nodemon src/app.js
+
+[33m[nodemon] 3.1.14[39m
+[33m[nodemon] to restart at any time, enter `rs`[39m
+[33m[nodemon] watching path(s): *.*[39m
+[33m[nodemon] watching extensions: js,mjs,cjs,json[39m
+[32m[nodemon] starting `node src/app.js`[39m
+❌ Error DB: ConnectionRefusedError [SequelizeConnectionRefusedError]
+    at ConnectionManager.connect (/app/backend/node_modules/sequelize/lib/dialects/mysql/connection-manager.js:92:17)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async ConnectionManager._connect (/app/backend/node_modules/sequelize/lib/dialects/abstract/connection-manager.js:222:24)
+    at async /app/backend/node_modules/sequelize/lib/dialects/abstract/connection-manager.js:174:32
+    at async ConnectionManager.getConnection (/app/backend/node_modules/sequelize/lib/dialects/abstract/connection-manager.js:197:7)
+    at async /app/backend/node_modules/sequelize/lib/sequelize.js:305:26
+    at async Sequelize.authenticate (/app/backend/node_modules/sequelize/lib/sequelize.js:457:5) {
+  parent: AggregateError [ECONNREFUSED]:
+      at internalConnectMultiple (node:net:1134:18)
+      at afterConnectMultiple (node:net:1715:7) {
+    code: 'ECONNREFUSED',
+    fatal: true,
+    [errors]: [ [Error], [Error] ]
+  },
+  original: AggregateError [ECONNREFUSED]:
+      at internalConnectMultiple (node:net:1134:18)
+      at afterConnectMultiple (node:net:1715:7) {
+    code: 'ECONNREFUSED',
+    fatal: true,
+    [errors]: [ [Error], [Error] ]
+  }
+}
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
