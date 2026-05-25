@@ -1,6 +1,6 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { LayoutDashboard, ShieldAlert, Users, LogOut } from 'lucide-react';
+import { LayoutDashboard, ShieldAlert, Users, LogOut, BarChart3 } from 'lucide-react';
 
 export default function Sidebar() {
   const { user, can, logout } = useAuth();
@@ -13,6 +13,7 @@ export default function Sidebar() {
 
   const navItems = [
     { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard, permission: 'dashboard:read' },
+    { name: 'Analítica', path: '/analytics', icon: BarChart3 },
     { name: 'Auditoría', path: '/audit', icon: ShieldAlert, permission: 'audit:read' },
     { name: 'Usuarios', path: '/users', icon: Users, role: 'admin' },
   ];
@@ -26,7 +27,11 @@ export default function Sidebar() {
       <div className="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
         {navItems.map((item) => {
           // Check permissions and roles
-          const hasAccess = item.role ? user?.role === item.role : can(item.permission);
+          const hasAccess = item.role
+            ? user?.role === item.role
+            : item.permission
+              ? can(item.permission)
+              : true;
 
           if (!hasAccess) return null;
 

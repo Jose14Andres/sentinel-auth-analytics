@@ -11,6 +11,7 @@ app.use(express.json());
 app.use(morgan('dev'));
 
 app.use('/api/auth', require('./routes/authRoutes'));
+app.use('/api/analytics', require('./routes/analyticsRoutes'));
 app.use('/api/audit', require('./routes/auditRoutes'));
 app.use('/api/users', require('./routes/userRoutes'));
 
