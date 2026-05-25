@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Skill(app-builder)",
+      "Bash(docker-compose down *)",
+      "Bash(docker-compose up *)",
+      "Bash(docker-compose logs *)",
+      "Bash(curl *)",
+      "PowerShell(New-Item *)",
+      "Bash(docker exec sentinel_backend *)"
+    ]
+  }
+}

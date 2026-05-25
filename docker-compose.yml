@@ -1,0 +1,66 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: sentinel_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: sentinel_root_2024
+      MYSQL_DATABASE: sentinel_db
+      MYSQL_USER: sentinel_user
+      MYSQL_PASSWORD: sentinel_pass_2024
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./database/01_init.sql:/docker-entrypoint-initdb.d/01_init.sql
+    networks:
+      - sentinel_net
+
+  backend:
+    build: ./backend
+    container_name: sentinel_backend
+    restart: unless-stopped
+    environment:
+      NODE_ENV: development
+      PORT: 3001
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_NAME: sentinel_db
+      DB_USER: sentinel_user
+      DB_PASSWORD: sentinel_pass_2024
+      JWT_SECRET: sentinel_jwt_super_secret_key_2024_PI_UTI
+      JWT_EXPIRES_IN: 8h
+      FRONTEND_URL: http://localhost:5173
+    ports:
+      - "3001:3001"
+    depends_on:
+      - mysql
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    networks:
+      - sentinel_net
+    command: npm run dev
+
+  frontend:
+    build: ./frontend
+    container_name: sentinel_frontend
+    restart: unless-stopped
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    networks:
+      - sentinel_net
+    environment:
+      VITE_API_URL: http://localhost:3001/api
+
+volumes:
+  mysql_data:
+
+networks:
+  sentinel_net:
+    driver: bridge
