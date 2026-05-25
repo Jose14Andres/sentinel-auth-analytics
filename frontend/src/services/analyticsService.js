@@ -1,9 +1,10 @@
 import API from './api';
 
 export const analyticsService = {
-  getSummary:    () => API.get('/analytics/summary'),
-  getChartData:  (category_id) => API.get(`/analytics/chart?category_id=${category_id}`),
+  getSummary:    (from, to) => API.get('/analytics/summary', { params: { from, to } }),
+  getChartData:  (category_id, from, to) => API.get(`/analytics/chart`, { params: { category_id, from, to } }),
   getCategories: () => API.get('/analytics/categories'),
-  getRecords:    () => API.get('/analytics/records'),
+  getRecords:    (from, to) => API.get('/analytics/records', { params: { from, to } }),
+  getMyRecords:  () => API.get('/analytics/my-records'),
   createRecord:  (data) => API.post('/analytics/records', data),
 };
