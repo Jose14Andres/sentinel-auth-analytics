@@ -7,6 +7,8 @@ import Dashboard from './pages/Dashboard';
 import Audit from './pages/Audit';
 import Analytics from './pages/Analytics';
 import Users from './pages/Users';
+import Risks from './pages/Risks';
+import Policies from './pages/Policies';
 import Unauthorized from './pages/Unauthorized';
 import Layout from './components/layout/Layout';
 
@@ -32,6 +34,16 @@ export default function App() {
             <Route path="/audit" element={
               <ProtectedRoute permission="audit:read">
                 <Audit />
+              </ProtectedRoute>
+            } />
+            <Route path="/policies" element={
+              <ProtectedRoute permission="policies:read">
+                <Policies />
+              </ProtectedRoute>
+            } />
+            <Route path="/risks" element={
+              <ProtectedRoute permission="risks:read">
+                <Risks />
               </ProtectedRoute>
             } />
             <Route path="/users" element={

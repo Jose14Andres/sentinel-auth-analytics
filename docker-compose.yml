@@ -16,6 +16,7 @@ services:
       - mysql_data:/var/lib/mysql
       - ./database/01_init.sql:/docker-entrypoint-initdb.d/01_init.sql
       - ./database/02_analytics.sql:/docker-entrypoint-initdb.d/02_analytics.sql
+      - ./database/03_risks.sql:/docker-entrypoint-initdb.d/03_risks.sql
     networks:
       - sentinel_net
 

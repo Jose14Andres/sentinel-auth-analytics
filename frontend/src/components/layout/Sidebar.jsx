@@ -1,6 +1,6 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { LayoutDashboard, ShieldAlert, Users, LogOut, BarChart3 } from 'lucide-react';
+import { LayoutDashboard, ShieldAlert, Users, LogOut, BarChart3, AlertTriangle, FileText } from 'lucide-react';
 
 export default function Sidebar() {
   const { user, can, logout } = useAuth();
@@ -15,6 +15,8 @@ export default function Sidebar() {
     { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard, permission: 'dashboard:read' },
     { name: 'Analítica', path: '/analytics', icon: BarChart3 },
     { name: 'Auditoría', path: '/audit', icon: ShieldAlert, permission: 'audit:read' },
+    { name: 'Políticas ISO', path: '/policies', icon: FileText, permission: 'policies:read' },
+    { name: 'Riesgos', path: '/risks', icon: AlertTriangle, permission: 'risks:read' },
     { name: 'Usuarios', path: '/users', icon: Users, role: 'admin' },
   ];
 
