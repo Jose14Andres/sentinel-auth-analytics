@@ -1,6 +1,10 @@
 const { DataRecord, DataCategory } = require('../models/DataRecord');
+const User = require('../models/User');
 const { Op } = require('sequelize');
 const sequelize = require('../config/database');
+
+// Asociar DataRecord con User temporalmente para el export
+DataRecord.belongsTo(User, { foreignKey: 'created_by', as: 'creator' });
 
 // GET /api/analytics/summary — KPIs para dashboard
 const getSummary = async (req, res) => {
@@ -132,4 +136,41 @@ const getRecords = async (req, res) => {
   }
 };
 
-module.exports = { getSummary, getChartData, getCategories, createRecord, getRecords, getMyRecords };
+// GET /api/analytics/export-csv
+const exportCSV = async (req, res) => {
+  try {
+    const records = await DataRecord.findAll({
+      include: [
+        { model: DataCategory, as: 'category', attributes: ['name'] },
+        { model: User, as: 'creator', attributes: ['email'] }
+      ],
+      order: [['created_at', 'DESC']]
+    });
+
+    const csvLines = [];
+    csvLines.push('id,title,category_name,value,unit,period,region,created_by_email,created_at');
+
+    records.forEach(r => {
+      const id = r.id;
+      const title = `"${r.title.replace(/"/g, '""')}"`;
+      const category_name = `"${r.category.name.replace(/"/g, '""')}"`;
+      const value = r.value;
+      const unit = r.unit ? `"${r.unit.replace(/"/g, '""')}"` : '';
+      const period = `"${r.period.replace(/"/g, '""')}"`;
+      const region = r.region ? `"${r.region.replace(/"/g, '""')}"` : '';
+      const email = r.creator && r.creator.email ? `"${r.creator.email.replace(/"/g, '""')}"` : '';
+      const created_at = r.created_at ? `"${new Date(r.created_at).toISOString()}"` : '';
+
+      csvLines.push(`${id},${title},${category_name},${value},${unit},${period},${region},${email},${created_at}`);
+    });
+
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', 'attachment; filename=sentinel_data.csv');
+    return res.send(csvLines.join('\n'));
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+module.exports = { getSummary, getChartData, getCategories, createRecord, getRecords, getMyRecords, exportCSV };
