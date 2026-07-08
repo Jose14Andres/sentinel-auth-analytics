@@ -150,15 +150,25 @@ const exportCSV = async (req, res) => {
     const csvLines = [];
     csvLines.push('id,title,category_name,value,unit,period,region,created_by_email,created_at');
 
+    const sanitize = (str) => {
+      if (!str) return str;
+      const stringified = String(str);
+      const dangerousChars = ['=', '+', '-', '@', '\t', '\r'];
+      if (dangerousChars.some(char => stringified.startsWith(char))) {
+        return "'" + stringified;
+      }
+      return stringified;
+    };
+
     records.forEach(r => {
       const id = r.id;
-      const title = `"${r.title.replace(/"/g, '""')}"`;
-      const category_name = `"${r.category.name.replace(/"/g, '""')}"`;
+      const title = `"${sanitize(r.title).replace(/"/g, '""')}"`;
+      const category_name = `"${sanitize(r.category.name).replace(/"/g, '""')}"`;
       const value = r.value;
-      const unit = r.unit ? `"${r.unit.replace(/"/g, '""')}"` : '';
-      const period = `"${r.period.replace(/"/g, '""')}"`;
-      const region = r.region ? `"${r.region.replace(/"/g, '""')}"` : '';
-      const email = r.creator && r.creator.email ? `"${r.creator.email.replace(/"/g, '""')}"` : '';
+      const unit = r.unit ? `"${sanitize(r.unit).replace(/"/g, '""')}"` : '';
+      const period = `"${sanitize(r.period).replace(/"/g, '""')}"`;
+      const region = r.region ? `"${sanitize(r.region).replace(/"/g, '""')}"` : '';
+      const email = r.creator && r.creator.email ? `"${sanitize(r.creator.email).replace(/"/g, '""')}"` : '';
       const created_at = r.created_at ? `"${new Date(r.created_at).toISOString()}"` : '';
 
       csvLines.push(`${id},${title},${category_name},${value},${unit},${period},${region},${email},${created_at}`);
