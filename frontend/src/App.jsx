@@ -32,22 +32,22 @@ export default function App() {
               </ProtectedRoute>
             } />
             <Route path="/audit" element={
-              <ProtectedRoute permission="audit:read">
+              <ProtectedRoute allowedRoles={['admin', 'auditor']}>
                 <Audit />
               </ProtectedRoute>
             } />
             <Route path="/policies" element={
-              <ProtectedRoute permission="policies:read">
+              <ProtectedRoute allowedRoles={['admin', 'auditor']}>
                 <Policies />
               </ProtectedRoute>
             } />
             <Route path="/risks" element={
-              <ProtectedRoute permission="risks:read">
+              <ProtectedRoute allowedRoles={['admin', 'auditor']}>
                 <Risks />
               </ProtectedRoute>
             } />
             <Route path="/users" element={
-              <ProtectedRoute permission="*">
+              <ProtectedRoute allowedRoles={['admin']}>
                 <Users />
               </ProtectedRoute>
             } />
