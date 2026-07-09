@@ -7,6 +7,7 @@ import {
 } from 'recharts';
 import { Download, Plus, TrendingUp, TrendingDown, AlertTriangle, Activity } from 'lucide-react';
 import toast from 'react-hot-toast';
+import RoleGate from '../components/layout/RoleGate';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import * as XLSX from 'xlsx';
@@ -122,7 +123,7 @@ function AnalystView({ summary, chartData, records, categories, can, from, setFr
       </div>
 
       {/* Botones exportar — solo admin y analyst */}
-      {can('reports:export') && (
+      <RoleGate allowedRoles={['admin', 'analyst']}>
         <div className="flex gap-3">
           <button onClick={exportPDF}   className="flex items-center gap-2 bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-2 rounded-lg text-sm hover:bg-red-500/20 transition">
             <Download className="w-4 h-4" /> Exportar PDF
@@ -131,7 +132,7 @@ function AnalystView({ summary, chartData, records, categories, can, from, setFr
             <Download className="w-4 h-4" /> Exportar Excel
           </button>
         </div>
-      )}
+      </RoleGate>
 
       {/* Gráfico de líneas */}
       <div className="bg-gray-900 border border-gray-800 rounded-xl p-5">

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import API from '../services/api';
 import { Users as UsersIcon } from 'lucide-react';
 import { toast } from 'react-hot-toast';
+import RoleGate from '../components/layout/RoleGate';
 
 export default function Users() {
   const [users, setUsers] = useState([]);
@@ -41,6 +42,7 @@ export default function Users() {
   };
 
   return (
+    <RoleGate allowedRoles={['admin']}>
     <div className="p-6 space-y-6">
       <div className="flex justify-between items-center">
         <div>
@@ -97,5 +99,6 @@ export default function Users() {
         </div>
       </div>
     </div>
+    </RoleGate>
   );
 }
