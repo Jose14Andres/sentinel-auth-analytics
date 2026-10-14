@@ -10,6 +10,10 @@ const login = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Email y contraseña requeridos' });
     }
 
+    if (typeof email !== 'string' || typeof password !== 'string') {
+      return res.status(400).json({ success: false, message: 'El email y la contraseña deben ser texto' });
+    }
+
     const user = await User.findOne({
       where: { email: email.toLowerCase().trim() },
       include: [{ model: Role, as: 'role' }],
