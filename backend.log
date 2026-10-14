@@ -1,6 +1,0 @@
-
-> backend@1.0.0 start
-> node src/app.js
-
-✅ MySQL conectado
-🚀 Backend corriendo en http://localhost:3001
