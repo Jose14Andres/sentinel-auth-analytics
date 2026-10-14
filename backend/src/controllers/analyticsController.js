@@ -136,50 +136,78 @@ const getRecords = async (req, res) => {
   }
 };
 
+const dangerousCharsCode = new Set([
+  '='.charCodeAt(0), '+'.charCodeAt(0), '-'.charCodeAt(0),
+  '@'.charCodeAt(0), '\t'.charCodeAt(0), '\r'.charCodeAt(0)
+]);
+const sanitize = (str) => {
+  if (!str) return str;
+  const stringified = String(str);
+  if (dangerousCharsCode.has(stringified.charCodeAt(0))) {
+    return "'" + stringified;
+  }
+  return stringified;
+};
+
 // GET /api/analytics/export-csv
 const exportCSV = async (req, res) => {
   try {
-    const records = await DataRecord.findAll({
-      include: [
-        { model: DataCategory, as: 'category', attributes: ['name'] },
-        { model: User, as: 'creator', attributes: ['email'] }
-      ],
-      order: [['created_at', 'DESC']]
-    });
-
-    const csvLines = [];
-    csvLines.push('id,title,category_name,value,unit,period,region,created_by_email,created_at');
-
-    const sanitize = (str) => {
-      if (!str) return str;
-      const stringified = String(str);
-      const dangerousChars = ['=', '+', '-', '@', '\t', '\r'];
-      if (dangerousChars.some(char => stringified.startsWith(char))) {
-        return "'" + stringified;
-      }
-      return stringified;
-    };
-
-    records.forEach(r => {
-      const id = r.id;
-      const title = `"${sanitize(r.title).replace(/"/g, '""')}"`;
-      const category_name = `"${sanitize(r.category.name).replace(/"/g, '""')}"`;
-      const value = r.value;
-      const unit = r.unit ? `"${sanitize(r.unit).replace(/"/g, '""')}"` : '';
-      const period = `"${sanitize(r.period).replace(/"/g, '""')}"`;
-      const region = r.region ? `"${sanitize(r.region).replace(/"/g, '""')}"` : '';
-      const email = r.creator && r.creator.email ? `"${sanitize(r.creator.email).replace(/"/g, '""')}"` : '';
-      const created_at = r.created_at ? `"${new Date(r.created_at).toISOString()}"` : '';
-
-      csvLines.push(`${id},${title},${category_name},${value},${unit},${period},${region},${email},${created_at}`);
-    });
-
     res.setHeader('Content-Type', 'text/csv');
     res.setHeader('Content-Disposition', 'attachment; filename=sentinel_data.csv');
-    return res.send(csvLines.join('\n'));
+
+    res.write('id,title,category_name,value,unit,period,region,created_by_email,created_at\n');
+
+    let offset = 0;
+    const limit = 5000;
+    let hasMore = true;
+
+    while (hasMore) {
+      const records = await DataRecord.findAll({
+        include: [
+          { model: DataCategory, as: 'category', attributes: ['name'] },
+          { model: User, as: 'creator', attributes: ['email'] }
+        ],
+        order: [['created_at', 'DESC']],
+        limit,
+        offset
+      });
+
+      if (records.length === 0) {
+        hasMore = false;
+        break;
+      }
+
+      const lines = new Array(records.length);
+      for (let i = 0; i < records.length; i++) {
+        const r = records[i];
+        const title = `"${sanitize(r.title).replace(/"/g, '""')}"`;
+        const category_name = `"${sanitize(r.category.name).replace(/"/g, '""')}"`;
+        const value = r.value;
+        const unit = r.unit ? `"${sanitize(r.unit).replace(/"/g, '""')}"` : '';
+        const period = `"${sanitize(r.period).replace(/"/g, '""')}"`;
+        const region = r.region ? `"${sanitize(r.region).replace(/"/g, '""')}"` : '';
+        const email = r.creator && r.creator.email ? `"${sanitize(r.creator.email).replace(/"/g, '""')}"` : '';
+        const created_at = r.created_at ? `"${new Date(r.created_at).toISOString()}"` : '';
+
+        lines[i] = `${r.id},${title},${category_name},${value},${unit},${period},${region},${email},${created_at}`;
+      }
+
+      res.write(lines.join('\n') + '\n');
+      offset += limit;
+
+      if (records.length < limit) {
+        hasMore = false;
+      }
+    }
+
+    res.end();
   } catch (err) {
     console.error(err);
-    res.status(500).json({ success: false, message: err.message });
+    if (!res.headersSent) {
+      res.status(500).json({ success: false, message: err.message });
+    } else {
+      res.end();
+    }
   }
 };
 
